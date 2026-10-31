@@ -1,0 +1,55 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "vu1n Renovate policy, copied from hyperstitch/.github:renovate-preset. Pin Actions and images, refresh digests, surface CVEs, and gate every update behind a minimum release age so a poisoned release has time to be yanked first. Consume with { \"extends\": [\"github>vu1n/renovate-config\"] }.",
+  "extends": [
+    "config:best-practices",
+    "docker:pinDigests",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "schedule": ["before 9am on monday"],
+  "prConcurrentLimit": 5,
+
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "osvVulnerabilityAlerts": true,
+
+  "lockFileMaintenance": {
+    "description": "Off: it refreshes non-vulnerable transitive deps and the package manager's resolution skips the release-age gate.",
+    "enabled": false
+  },
+
+  "packageRules": [
+    {
+      "description": "Routine version bumps are off; pinning, digest refresh and CVEs are what earned their keep in hyperstitch's triage. The dashboard still lists every available update. Re-enable per repo with a matchUpdateTypes rule setting enabled:true.",
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "enabled": false
+    },
+    {
+      "description": "Digest refresh for a tag we already track stays on: it is how base-image security patches reach us.",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "enabled": true
+    },
+    {
+      "description": "Group container base-image digest bumps so they review as a unit.",
+      "matchManagers": ["dockerfile"],
+      "groupName": "container base images",
+      "addLabels": ["docker-base"]
+    },
+    {
+      "description": "Majors get extra age and a review label when a repo re-enables them.",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "14 days",
+      "addLabels": ["major-review"]
+    }
+  ],
+
+  "vulnerabilityAlerts": {
+    "description": "A confirmed GHSA/OSV advisory opens a PR off-schedule, after 3 days so a poisoned fix has a beat to be caught. enabled:true overrides the rule that turns major/minor/patch off.",
+    "enabled": true,
+    "minimumReleaseAge": "3 days",
+    "schedule": ["at any time"],
+    "addLabels": ["security"]
+  }
+}
