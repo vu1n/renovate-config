@@ -32,6 +32,14 @@
       "enabled": true
     },
     {
+      "description": "Exception to the rule above: Cloudflare deploy tooling stays current, since a deploy runs whatever wrangler the lockfile holds. Minor and patch bumps group into one PR that automerges on green CI, after the minimum release age.",
+      "matchPackageNames": ["wrangler", "@cloudflare/workers-types"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "enabled": true,
+      "groupName": "cloudflare tooling",
+      "automerge": true
+    },
+    {
       "description": "Group container base-image digest bumps so they review as a unit.",
       "matchManagers": ["dockerfile"],
       "groupName": "container base images",
